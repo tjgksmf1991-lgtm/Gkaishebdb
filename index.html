@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>상세페이지 스튜디오 · 프로토타입</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --ink:#14161a; --ink2:#565c66; --ink3:#8a909a;
+    --line:#e6e2d9; --paper:#f3f1eb; --card:#ffffff;
+    --accent:#12694f; --accent2:#e8f1ec;
+    --r:16px;
+    --shadow:0 8px 24px rgba(20,22,26,.07);
+    --shadow-lg:0 18px 50px rgba(20,22,26,.12);
+  }
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased; letter-spacing:-.01em;
+    min-height:100vh;
+  }
+  button{font-family:inherit;letter-spacing:inherit}
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 24px; background:rgba(255,255,255,.88);
+    backdrop-filter:saturate(1.4) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .logo{
+    width:38px;height:38px;border-radius:11px;flex:none;
+    background:linear-gradient(150deg,#12694f,#0a3f30);
+    color:#fff;display:grid;place-items:center;font-weight:800;font-size:17px;
+    letter-spacing:-.03em; box-shadow:0 6px 14px rgba(18,105,79,.28);
+  }
+  .brand h1{font-size:16px;margin:0;font-weight:800;letter-spacing:-.02em}
+  .brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top-actions{display:flex;align-items:center;gap:8px;flex:none}
+  .pill{
+    font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent2);
+    padding:5px 10px;border-radius:99px;letter-spacing:0;
+  }
+  /* ---------- buttons ---------- */
+  .btn{
+    border:1px solid var(--line); background:#fff; color:var(--ink);
+    padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:700;
+    cursor:pointer; transition:.15s ease; white-space:nowrap;
+  }
+  .btn:hover{background:#faf9f6; transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.solid:hover{background:#000}
+  .btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.accent:hover{background:#0d5440}
+  .btn.ghost{background:transparent}
+  .btn.tiny{padding:7px 11px;font-size:12.5px;border-radius:8px}
+  .btn.block{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+  /* ---------- layout ---------- */
+  main{
+    display:grid; grid-template-columns:404px minmax(0,1fr);
+    gap:22px; padding:22px 24px 60px; max-width:1500px; margin:0 auto;
+    align-items:start;
+  }
+  aside.panel{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    padding:18px; box-shadow:var(--shadow);
+    position:sticky; top:82px; max-height:calc(100vh - 104px); overflow:auto;
+  }
+  aside.panel::-webkit-scrollbar{width:8px}
+  aside.panel::-webkit-scrollbar-thumb{background:#dcd8ce;border-radius:9px}
+  /* ---------- fields ---------- */
+  .field{margin-bottom:20px}
+  .field-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;gap:8px}
+  .field-head label{font-size:13px;font-weight:800;letter-spacing:-.01em}
+  .hint{font-size:11.5px;color:var(--ink3);font-weight:500;letter-spacing:0}
+  input[type=text],input[type=number],textarea{
+    Width:100%; width:100%;
+    border:1px solid var(--line); border-radius:10px; background:#fcfbf8;
+    padding:11px 12px; font-size:14px; font-family:inherit; color:var(--ink);
+    outline:none; transition:.15s; letter-spacing:-.01em;
+  }
+  input[type=text]:focus,input[type=number]:focus,textarea:focus{
+    border-color:var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(18,105,79,.10);
+  }
+  input::placeholder,textarea::placeholder{color:#b3b0a8}
+  textarea{resize:vertical;min-height:38px;line-height:1.45}
+  .feat{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+  .feat .num{
+    flex:none;width:22px;height:22px;margin-top:9px;border-radius:7px;background:#f0eee7;
+    color:var(--ink2);font-size:11.5px;font-weight:800;display:grid;place-items:center
+  }
+  .price-wrap{position:relative}
+  .price-wrap input{padding-right:36px}
+  .price-wrap span{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--ink3);font-weight:600}
+  /* ---------- photo ---------- */
+  .dropzone{
+    border:1.5px dashed #d6d2c7; border-radius:12px; padding:10px;
+    background:#fbfaf6; transition:.15s; cursor:pointer;
+  }
+  .dropzone.over{border-color:var(--accent); background:var(--accent2)}
+  .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .slot{
+    position:relative; aspect-ratio:1/1; border-radius:9px; overflow:hidden;
+    background:#eeebe3; display:grid; place-items:center; color:#a8a49a;
+    font-size:22px; font-weight:300; border:1px solid #e7e3d9;
+  }
+  .slot img{width:100%;height:100%;object-fit:cover;display:block}
+  .slot .rm{
+    position:absolute; top:4px; right:4px; width:20px;height:20px;border-radius:99px;
+    background:rgba(20,22,26,.72); color:#fff; border:0; cursor:pointer;
+    font-size:12px; line-height:1; display:grid; place-items:center; padding:0;
+  }
+  .drop-hint{font-size:12px;color:var(--ink3);text-align:center;padding:9px 4px 2px;line-height:1.5}
+  .drop-hint b{color:var(--ink2)}
+  /* ---------- chips / mood ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{
+    border:1px solid var(--line); background:#fbfaf7; color:var(--ink2);
+    padding:8px 12px; border-radius:99px; font-size:12.5px; font-weight:600;
+    cursor:pointer; transition:.15s;
+  }
+  .chip:hover{border-color:#c9c4b7}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .moods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .mood{
+    border:1px solid var(--line); background:#fbfaf7; border-radius:11px;
+    padding:10px 8px; cursor:pointer; text-align:center; transition:.15s;
+  }
+  .mood .swatch{height:16px;border-radius:5px;margin-bottom:7px}
+  .mood b{display:block;font-size:12px;font-weight:800;letter-spacing:-.01em}
+  .mood small{display:block;font-size:10.5px;color:var(--ink3);margin-top:2px}
+  .mood[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 3px rgba(20,22,26,.07);background:#fff}
+  /* ---------- stage ---------- */
+  .stage{min-width:0; scroll-margin-top:110px}
+  .tabs{
+    display:flex;gap:6px;background:#eae7df;border-radius:12px;padding:5px;margin-bottom:16px;
+    width:fit-content; max-width:100%; overflow:auto;
+  }
+  .tab{
+    border:0;background:transparent;color:var(--ink2);font-size:13px;font-weight:700;
+    padding:9px 15px;border-radius:9px;cursor:pointer;white-space:nowrap;
+  }
+  .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(20,22,26,.08)}
+  .panel-tab{display:none}
+  .panel-tab.active{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* empty state */
+  .empty{
+    background:#fff;border:1px solid var(--line);border-radius:18px;padding:44px 32px;
+    box-shadow:var(--shadow); text-align:center;
+  }
+  .empty .ico{
+    width:56px;height:56px;border-radius:16px;background:var(--accent2);color:var(--accent);
+    display:grid;place-items:center;margin:0 auto 16px;font-size:24px;font-weight:800;
+  }
+  .empty h2{margin:0 0 8px;font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .empty p{margin:0 auto;max-width:440px;color:var(--ink2);font-size:13.5px;line-height:1.65}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px auto 0;max-width:560px}
+  .step{background:#faf9f5;border:1px solid #efece4;border-radius:12px;padding:12px 10px;text-align:left}
+  .step b{display:block;font-size:11.5px;color:var(--accent);margin-bottom:4px;letter-spacing:0}
+  .step span{font-size:12px;color:var(--ink2);line-height:1.45;display:block}
+  /* result cards */
+  .result-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;
+  }
+  .result-head .meta{font-size:12.5px;color:var(--ink3)}
+  .result-head .meta b{color:var(--ink);font-weight:800}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .thumb-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+  .thumb-card header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:8px}
+  .thumb-card h3{margin:0;font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+  .thumb-card .tag{font-size:10.5px;color:var(--ink3);font-weight:600}
+  .thumb-card canvas{width:100%;height:auto;display:block;border-radius:9px;background:#f6f5f1}
+  .thumb-card footer{margin-top:10px}
+  .page-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .page-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .page-bar .meta{font-size:12.5px;color:var(--ink3)}
+  .page-scroll{display:flex;justify-content:center;background:#f6f5f1;border-radius:12px;padding:12px;overflow:auto;max-height:78vh}
+  .page-scroll canvas{width:100%;max-width:540px;height:auto;display:block;border-radius:6px;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.10)}
+  .page-scroll.big canvas{max-width:860px}
+  .note{font-size:11.5px;color:var(--ink3);margin-top:10px;line-height:1.55}
+  /* copy tab */
+  .copygrid{display:grid;gap:12px}
+  .ccard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+  .ccard header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .ccard h3{margin:0;font-size:12px;font-weight:800;color:var(--accent);letter-spacing:0}
+  .ccard .len{font-size:11px;color:var(--ink3);margin-left:6px;font-weight:600}
+  .ccard p{margin:0;font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:keep-all}
+  .ccard ol{margin:0;padding-left:18px}
+  .ccard li{font-size:14px;line-height:1.65;margin-bottom:4px;word-break:keep-all}
+  /* toast */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:var(--ink);color:#fff;font-size:13px;font-weight:600;
+    padding:11px 18px;border-radius:99px;opacity:0;pointer-events:none;
+    transition:.22s ease; z-index:99; box-shadow:var(--shadow-lg);
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  .gen-note{margin-top:10px;font-size:11.5px;color:var(--ink3);line-height:1.5;text-align:center}
+  @media (max-width:1040px){
+    main{grid-template-columns:1fr;padding:16px}
+    aside.panel{position:static;max-height:none}
+    .topbar{padding:12px 16px;flex-wrap:wrap}
+    .brand p{display:none}
+    .stage{scroll-margin-top:172px}
+  }
+  @media (max-width:560px){
+    .top-actions{width:100%;gap:6px}
+    .top-actions .btn{flex:1;padding:9px 8px;font-size:12px;text-align:center}
+    .pill{display:none}
+    .brand h1{font-size:15px}
+    main{padding:12px}
+    .tabs{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">S</div>
+    <div>
+      <h1>상세페이지 스튜디오</h1>
+      <p>상품 사진·특징 3줄로 썸네일과 세로 상세페이지까지 (프로토타입)</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="pill">동작 프로토타입</span>
+    <button class="btn ghost" id="btnPreset2">예시 ② 하네스</button>
+    <button class="btn solid" id="btnPreset">예시 데이터 채우기</button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= INPUT PANEL ================= -->
+  <aside class="panel">
+    <div class="field">
+      <div class="field-head">
+        <label>상품 사진</label>
+        <span class="hint">최대 3장 · 없어도 생성</span>
+      </div>
+      <div class="dropzone" id="dropzone">
+        <div class="slots" id="slots"></div>
+        <div class="drop-hint" id="dropHint">사진을 끌어다 놓거나 <b>클릭해서 선택</b></div>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><label for="fName">상품명 <span style="color:#c0392b">*</span></label></div>
+      <input type="text" id="fName" placeholder="예) 수제 소금버터바 6입" maxlength="60" />
+    </div>
+
+    <div class="field">
+      <div class="field-head"><label for="fPrice">판매가</label><span class="hint">선택</span></div>
+      <div class="price-wrap">
+        <input type="number" id="fPrice" placeholder="14900" min="0" step="100" />
+        <span>원</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><label>타깃 고객</label></div>
+      <div class="chips" id="targetChips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><label>핵심 특징 3줄</label><span class="hint">짧을수록 좋아요</span></div>
+      <div class="feat"><span class="num">1</span><textarea id="f1" rows="1" placeholder="예) 천연 무염버터 82% 함량"></textarea></div>
+      <div class="feat"><span class="num">2</span><textarea id="f2" rows="1" placeholder="예) 설탕 대신 알룰로스로 담백하게"></textarea></div>
+      <div class="feat"><span class="num">3</span><textarea id="f3" rows="1" placeholder="예) 한 개씩 진공 개별 포장"></textarea></div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><label>무드</label></div>
+      <div class="moods" id="moodPicker"></div>
+    </div>
+
+    <button class="btn accent block" id="btnGenerate" style="padding:14px;font-size:14.5px">
+      상세페이지 &amp; 썸네일 생성
+    </button>
+    <div class="gen-note">입력값은 브라우저 밖으로 나가지 않습니다 · 이미지는 PNG로 저장</div>
+  </aside>
+
+  <!-- ================= STAGE ================= -->
+  <section class="stage">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true"  data-tab="t1">① 대표 썸네일 3종</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="t2">② 세로 상세페이지</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="t3">③ 카피·제목</button>
+    </div>
+
+    <!-- empty -->
+    <div id="emptyState" class="empty">
+      <div class="ico">✦</div>
+      <h2>왼쪽에 상품 정보를 넣고 생성을 눌러보세요</h2>
+      <p>사진이 없어도 됩니다. 예시 데이터로 바로 결과를 확인한 뒤, 실제 상품명과 특징 3줄만 바꾸면 그대로 쓸 수 있는 시안이 나옵니다.</p>
+      <div class="steps">
+        <div class="step"><b>STEP 1</b><span>상품명·특징 3줄 입력</span></div>
+        <div class="step"><b>STEP 2</b><span>무드 선택 후 생성</span></div>
+        <div class="step"><b>STEP 3</b><span>PNG 다운로드·문구 복사</span></div>
+      </div>
+    </div>
+
+    <!-- tab 1 -->
+    <div class="panel-tab" id="t1">
+      <div class="result-head">
+        <div class="meta">스마트스토어 규격 <b>1000 × 1000 px</b> · 3종</div>
+        <div class="meta" id="thumbMeta"></div>
+      </div>
+      <div class="thumbs">
+        <div class="thumb-card">
+          <header><h3>1. 핵심 포인트 강조형</h3><span class="tag">클릭 유도</span></header>
+          <canvas id="cvA" width="1000" height="1000"></canvas>
+          <footer><button class="btn tiny block" data-dl="A">PNG 다운로드</button></footer>
+        </div>
+        <div class="thumb-card">
+          <header><h3>2. 감성 무드형</h3><span class="tag">브랜딩</span></header>
+          <canvas id="cvB" width="1000" height="1000"></canvas>
+          <footer><button class="btn tiny block" data-dl="B">PNG 다운로드</button></footer>
+        </div>
+        <div class="thumb-card">
+          <header><h3>3. 스펙·혜택 강조형</h3><span class="tag">가격/구성</span></header>
+          <canvas id="cvC" width="1000" height="1000"></canvas>
+          <footer><button class="btn tiny block" data-dl="C">PNG 다운로드</button></footer>
+        </div>
+      </div>
+      <div class="note">※ 아이폰 사파리에서 PNG가 새 탭으로 열리면, 이미지를 길게 눌러 ‘사진에 저장’을 선택하면 됩니다.</div>
+    </div>
+    <div class="panel-tab" id="t2">
+      <div class="page-wrap">
+        <div class="page-bar">
+          <div class="meta">표준 폭 <b>860 px</b> · 세로형 1장 <span id="pageSize"></span></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn tiny" id="btnBig">크게 보기</button>
+            <button class="btn tiny accent" data-dl="P">세로 상세페이지 PNG 다운로드</button>
+          </div>
+        </div>
+        <div class="page-scroll" id="pageScroll"><canvas id="cvPage" width="860" height="3200"></canvas></div>
+        <div class="note">※ 배송·보관 문구는 기본 예시입니다. 실제 스토어 정책에 맞게 수정해서 사용하세요.</div>
+      </div>
+    </div>
+
+    <!-- tab 3 -->
+    <div class="panel-tab" id="t3">
+      <div class="copygrid" id="copyGrid"></div>
+      <div class="note">※ 상품명은 스마트스토어 검색어 조합을 기준으로 뽑았습니다. 브랜드명·인증 문구는 직접 확인 후 추가하세요.</div>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   상세페이지 스튜디오 — 프로토타입
+   - 외부 라이브러리/CDN 없음. 브라우저에서 바로 열면 동작.
+   - 카피 생성은 규칙 기반 엔진(ruleBasedCopy). 실제 AI 연동 시
+     buildCopy() 안의 한 줄만 교체하면 됩니다.
+   ========================================================================= */
+
+const FONT = '"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",system-ui,-apple-system,sans-serif';
+const font = (w, s) => `${w} ${s}px ${FONT}`;
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+/* ---------------- 팔레트 / 무드 ---------------- */
+const MOODS = {
+  clean: { label: '깔끔·모던', desc: '정보 중심', ink: '#14161a', inkSoft: '#5a6068',
+           paper: '#f4f4f1', soft: '#e8eae6', accent: '#1f3f66', accentSoft: '#dfe6ef' },
+  warm:  { label: '따뜻·감성', desc: '여백·질감', ink: '#3b2b21', inkSoft: '#7d6a5c',
+           paper: '#fbf3e6', soft: '#f2e3cd', accent: '#b4603c', accentSoft: '#f0dcc8' },
+  sale:  { label: '강조·할인형', desc: '숫자 강조', ink: '#17130f', inkSoft: '#6a5f52',
+           paper: '#fff6e2', soft: '#ffe9b8', accent: '#d9441f', accentSoft: '#ffd79a' },
+};
+
+/* ---------------- 타깃 고객 ---------------- */
+const TARGETS = {
+  gift:    { label: '선물용',   kw: '선물용', kw2: '선물하기 좋은',
+             emp: ['누구에게 뭘 줄지 매번 고민하는 분',
+                   '포장까지 신경 쓰고 싶은데 시간이 없는 분',
+                   '받는 사람이 실제로 쓰는 걸 선물하고 싶은 분'],
+             line: '받는 분의 하루에 작게 얹히는 마음' },
+  office:  { label: '직장인',   kw: '직장인', kw2: '사무실 간식',
+             emp: ['오후만 되면 단 게 당기는 분',
+                   '책상 서랍에 두고 하나씩 꺼내 먹을 걸 찾는 분',
+                   '커피값은 아끼면서 질은 챙기고 싶은 분'],
+             line: '오후 세 시, 잠깐 손을 멈추게 하는' },
+  single:  { label: '1인가구',  kw: '1인가구', kw2: '자취',
+             emp: ['한 사람 몫으로 딱 맞는 양을 찾는 분',
+                   '사두면 남아서 버리는 일이 많은 분',
+                   '집에서도 제대로 된 걸 챙기고 싶은 분'],
+             line: '혼자인 저녁에도 챙기고 싶은' },
+  pet:     { label: '육아·반려', kw: '반려견', kw2: '강아지 산책',
+             emp: ['산책할 때마다 장비를 다시 확인하는 분',
+                   '처음 키우기 시작해 뭘 사야 할지 모르는 분',
+                   '매일 쓰는 거라 튼튼한 걸 원하는 분'],
+             line: '산책길에서 가장 먼저 손이 가는' },
+  student: { label: '학생',     kw: '학생', kw2: '대학생',
+             emp: ['가방에 넣고 다니기 좋은 걸 찾는 분',
+                   '바쁜 날엔 한 끼도 대충 넘기는 분',
+                   '가격 대비 만족을 먼저 보는 분'],
+             line: '가방 한쪽에 들어가는 작은 여유' },
+  home:    { label: '주부·가정', kw: '가정용', kw2: '집들이 선물',
+             emp: ['가족이 먹을 거라 더 꼼꼼히 보는 분',
+                   '매일 쓰는 물건은 오래 쓸 걸로 사는 분',
+                   '집들이·명절 선물을 미리 준비하는 분'],
+             line: '식탁 위에 놓아두고 싶은' },
+};
+
+/* ---------------- 카테고리 ---------------- */
+const CATEGORIES = [
+  { id: 'bakery', noun: '수제 디저트', emoji: '🧈',
+    hook: { warm: ['한 입에 스며드는', '진짜 버터의 온도'], clean: ['필요한 것만 담은', '제대로 된 간식'] },
+    kw: ['버터바','버터','쿠키','브라운','케이크','마들렌','스콘','빵','베이킹','초콜릿','잼','디저트','과자','약과','휘낭시에','파운드','구움','캐러멜','떡',],
+    desc: ['재료가 좋으면 맛이 먼저 말해 줍니다.',
+           '매일 먹는 간식이라 이 부분은 그냥 넘기지 않았습니다.',
+           '한 조각으로도 진한 맛이 남습니다.',
+           '선물할 때 따로 설명하지 않아도 되는 이유입니다.'],
+    check: ['냉장 보관 권장 · 개봉 후 가급적 빠르게', '직사광선을 피해 서늘한 곳에 보관'],
+    point: '한 입에 스며드는' },
+  { id: 'pet', noun: '반려 산책용품', emoji: '🐕',
+    hook: { warm: ['매일의 산책이', '조금 더 편해지도록'], clean: ['매일 쓰는 장비는', '단순해야 합니다'] },
+    kw: ['하네스','목줄','리드줄','강아지','반려','고양이','산책','펫','배변','사료','간식'],
+    desc: ['매일 쓰는 장비라 튼튼함이 먼저입니다.',
+           '산책 준비 시간을 줄여 주는 부분입니다.',
+           '반려가 불편하지 않도록 착용감을 먼저 봤습니다.',
+           '한 번 맞추면 계속 쓰게 되는 부분입니다.'],
+    check: ['사용 전 바느질·버클 상태 확인', '습기 많은 날은 사용 후 완전히 건조'],
+    point: '매일의 산책이 편해지는' },
+  { id: 'beauty', noun: '데일리 뷰티', emoji: '🧴',
+    hook: { warm: ['매일 아침 가장 먼저', '손이 가는 것'], clean: ['바르는 시간만큼은', '확실하게'] },
+    kw: ['크림','세럼','앰플','향수','립','스킨','화장','뷰티','샴푸','비누','클렌징','톤','에센스'],
+    desc: ['매일 바르는 것이라 성분을 먼저 봤습니다.',
+           '손이 자주 가는 질감으로 맞췄습니다.',
+           '아침저녁 루틴에 자연스럽게 들어가는 부분입니다.',
+           '처음 쓰는 분도 부담 없는 구성입니다.'],
+    check: ['개봉 후 12개월 이내 사용 권장', '직사광선을 피해 서늘한 곳에 보관'],
+    point: '매일 아침 가장 먼저' },
+  { id: 'living', noun: '리빙 소품', emoji: '🕯️',
+    hook: { warm: ['매일 보는 자리에', '두고 싶은 것'], clean: ['있어야 할 자리에', '딱 맞는 물건'] },
+    kw: ['컵','머그','수납','조명','인테리어','행거','쿠션','타월','주방','텀블러','식기','화분','러그','트레이'],
+    desc: ['매일 눈에 들어오는 물건이라 형태를 먼저 봤습니다.',
+           '손이 닿는 부분의 마감을 다듬었습니다.',
+           '공간에 놓았을 때 부담 없는 크기입니다.',
+           '오래 두고 쓸수록 익숙해지는 부분입니다.'],
+    check: ['사용 전 제품 치수 확인', '오염 시 중성세제로 부드럽게 세척'],
+    point: '매일 쓰는 자리에' },
+  { id: 'fashion', noun: '데일리 의류', emoji: '🧶',
+    hook: { warm: ['매일 손이 가는', '옷장 한 칸'], clean: ['군더더기 없이', '매일 입는 옷'] },
+    kw: ['니트','가디건','셔츠','원피스','가방','스카프','양말','모자','패딩','코트','티셔츠'],
+    desc: ['매일 입는 옷이라 소재를 먼저 봤습니다.',
+           '한 벌로 여러 번 입을 수 있는 컬러입니다.',
+           '몸에 붙지 않는 실루엣으로 잡았습니다.',
+           '세탁해도 형태가 무너지지 않는 편입니다.'],
+    check: ['첫 세탁은 단독으로 찬물 세탁', '건조기 사용 시 수축될 수 있습니다'],
+    point: '매일 손이 가는 옷장 한 칸' },
+  { id: 'etc', noun: '셀렉트 아이템', emoji: '✦',
+    hook: { warm: ['고민 없이 고른', '한 가지'], clean: ['필요한 것만', '제대로'] },
+    kw: [],
+    desc: ['매일 쓰는 물건이라 이 부분을 먼저 챙겼습니다.',
+           '설명이 길지 않아도 전달되는 부분입니다.',
+           '한 번 쓰면 다시 찾게 되는 이유입니다.',
+           '선물하기에도 부담 없는 구성입니다.'],
+    check: ['수령 후 제품 상태 확인', '파손 시 스토어 채팅으로 문의'],
+    point: '고민 없이 고른' },
+];
+
+const TARGET_IDS = Object.keys(TARGETS);
+
+/* ---------------- 상태 ---------------- */
+const state = {
+  photos: [],       // HTMLImageElement[]
+  target: 'gift',
+  mood: 'warm',
+  doc: null,        // 생성된 문서(카피+이미지)
+  copyBlocks: [],   // {id, label, v}
+};
+
+/* =========================================================================
+   1) 이미지 — 업로드 사진 / 예시 캔버스 이미지 생성
+   ========================================================================= */
+function loadImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* 업로드 사진이 없을 때 쓰는 예시 상품 이미지 */
+function makeMockPhoto(moodId, catId, variant = 0) {
+  const S = 1100;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const c = cv.getContext('2d');
+  const P = MOODS[moodId] || MOODS.warm;
+
+  const bg = {
+    clean: ['#eeece6', '#dcdad2', '#f7f6f2'],
+    warm:  ['#f7e6cf', '#e8cfae', '#fffaf0'],
+    sale:  ['#fff0c9', '#f7d78a', '#fffdf6'],
+  }[moodId] || ['#f7e6cf', '#e8cfae', '#fffaf0'];
+
+  const g = c.createLinearGradient(0, 0, S, S);
+  g.addColorStop(0, bg[0]); g.addColorStop(1, bg[1]);
+  c.fillStyle = g; c.fillRect(0, 0, S, S);
+
+  // 소프트 라이트
+  const rg = c.createRadialGradient(S * 0.28, S * 0.16, 60, S * 0.28, S * 0.16, S * 1.25);
+  rg.addColorStop(0, 'rgba(255,255,255,.72)'); rg.addColorStop(.55, 'rgba(255,255,255,.18)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = rg; c.fillRect(0, 0, S, S);
+
+  // 바닥 그림자
+  const sg = c.createRadialGradient(S * 0.5, S * 0.80, 30, S * 0.5, S * 0.80, S * 0.42);
+  sg.addColorStop(0, 'rgba(60,45,30,.11)'); sg.addColorStop(1, 'rgba(60,45,30,0)');
+  c.fillStyle = sg; c.beginPath(); c.ellipse(S * 0.5, S * 0.80, S * 0.32, S * 0.07, 0, 0, Math.PI * 2); c.fill();
+
+  const cx = S * 0.5 + (variant ? 26 : 0);
+  const body = { clean: '#f0ede6', warm: '#f6ddba', sale: '#ffd98f' }[moodId] || '#f6ddba';
+  const bodyDark = { clean: '#cfcbc1', warm: '#dfb98a', sale: '#e7b354' }[moodId] || '#dfb98a';
+  const band = { clean: '#1f3f66', warm: '#b4603c', sale: '#d9441f' }[moodId] || '#b4603c';
+
+  c.save();
+  c.translate(cx, S * 0.52);
+  c.rotate(-0.055 + variant * 0.02);
+
+  if (catId === 'pet') {
+    // Y자 하네스 형상
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    const strap = { clean: '#c8c3b3', warm: '#e2bd90', sale: '#eec06f' }[moodId] || '#e2bd90';
+    const edge = { clean: '#a49e8e', warm: '#c08d59', sale: '#cd9535' }[moodId] || '#c08d59';
+
+    const stroke = (w, color, fn) => { c.strokeStyle = color; c.lineWidth = w; c.beginPath(); fn(); c.stroke(); };
+
+    // 어깨 스트랩 두 갈래 (가슴 고리에서 위로 벌어짐)
+    [-1, 1].forEach(s => {
+      stroke(58, edge, () => { c.moveTo(s * 10, 150); c.quadraticCurveTo(s * 96, 44, s * 168, -148); });
+      stroke(46, strap, () => { c.moveTo(s * 10, 150); c.quadraticCurveTo(s * 96, 44, s * 168, -148); });
+    });
+    // 가슴 밴드
+    stroke(46, edge, () => { c.moveTo(-150, 34); c.lineTo(150, 34); });
+    stroke(36, strap, () => { c.moveTo(-150, 34); c.lineTo(150, 34); });
+    // 스티치
+    c.setLineDash([9, 11]);
+    stroke(2.5, 'rgba(255,255,255,.65)', () => { c.moveTo(-150, 34); c.lineTo(150, 34); });
+    c.setLineDash([]);
+    // 금속 고리 (가슴)
+    c.strokeStyle = '#a3a9b0'; c.lineWidth = 16;
+    c.beginPath(); c.arc(0, 158, 34, 0, Math.PI * 2); c.stroke();
+    // 버클
+    c.fillStyle = band; rrect(c, 58, 4, 66, 50, 11); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.5)'; rrect(c, 72, 19, 38, 7, 4); c.fill();
+  } else if (catId === 'beauty' || catId === 'living') {
+    // 병/용기
+    const w = 300, h = 380;
+    const bgrd = c.createLinearGradient(-w/2, -h/2, w/2, h/2);
+    bgrd.addColorStop(0, '#ffffff'); bgrd.addColorStop(.45, body); bgrd.addColorStop(1, bodyDark);
+    c.fillStyle = bgrd;
+    rrect(c, -w/2, -h/2, w, h, 40); c.fill();
+    c.fillStyle = band; rrect(c, -w/2 + 34, -30, w - 68, 96, 12); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.85)';
+    rrect(c, -w/2 + 58, 4, 80, 10, 5); c.fill();
+    rrect(c, -w/2 + 58, 32, 132, 10, 5); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.5)';
+    rrect(c, -w/2 + 26, -h/2 + 26, 34, h - 130, 17); c.fill();
+    // 캡
+    c.fillStyle = '#2c2a27'; rrect(c, -w/2 + 60, -h/2 - 54, w - 120, 68, 14); c.fill();
+  } else {
+    // 디저트 바 / 박스
+    for (let i = 2; i >= 0; i--) {
+      const y = -90 + i * 86;
+      const grd = c.createLinearGradient(-260, y, 260, y + 150);
+      grd.addColorStop(0, '#ffffff'); grd.addColorStop(.35, body); grd.addColorStop(1, bodyDark);
+      c.fillStyle = grd;
+      rrect(c, -270 + i * 8, y, 540 - i * 16, 120, 26); c.fill();
+      c.strokeStyle = 'rgba(120,90,55,.18)'; c.lineWidth = 2;
+      rrect(c, -270 + i * 8, y, 540 - i * 16, 120, 26); c.stroke();
+      // 래퍼 밴드
+      c.fillStyle = band;
+      c.globalAlpha = .92;
+      rrect(c, -70 + i * 8, y, 140, 120, 8); c.fill();
+      c.globalAlpha = 1;
+      c.fillStyle = 'rgba(255,255,255,.75)';
+      rrect(c, -44 + i * 8, y + 46, 88, 7, 4); c.fill();
+      rrect(c, -34 + i * 8, y + 64, 68, 7, 4); c.fill();
+    }
+    // 부스러기
+    c.fillStyle = 'rgba(180,140,90,.45)';
+    for (let i = 0; i < 26; i++) {
+      const a = i * 2.399, r = 300 + (i % 5) * 26;
+      c.beginPath(); c.arc(Math.cos(a) * r, 210 + Math.sin(a) * 40, 4 + (i % 3), 0, Math.PI * 2); c.fill();
+    }
+  }
+  c.restore();
+
+  // 비네트
+  const vg = c.createRadialGradient(S * 0.5, S * 0.5, S * 0.28, S * 0.5, S * 0.5, S * 0.78);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(40,30,20,.16)');
+  c.fillStyle = vg; c.fillRect(0, 0, S, S);
+
+  return cv;
+}
+
+/* =========================================================================
+   2) 캔버스 그리기 헬퍼
+   ========================================================================= */
+function rrect(c, x, y, w, h, r) {
+  c.beginPath();
+  if (c.roundRect) c.roundRect(x, y, w, h, r);
+  else {
+    const rr = Math.min(r, w / 2, h / 2);
+    c.moveTo(x + rr, y); c.arcTo(x + w, y, x + w, y + h, rr);
+    c.arcTo(x + w, y + h, x, y + h, rr); c.arcTo(x, y + h, x, y, rr);
+    c.arcTo(x, y, x + w, y, rr); c.closePath();
+  }
+}
+
+function drawImageCover(c, img, x, y, w, h, radius = 0) {
+  if (!img) return;
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const scale = Math.max(w / iw, h / ih);
+  const sw = w / scale, sh = h / scale;
+  const sx = (iw - sw) / 2, sy = (ih - sh) / 2;
+  c.save();
+  if (radius) { rrect(c, x, y, w, h, radius); c.clip(); }
+  else { c.beginPath(); c.rect(x, y, w, h); c.clip(); }
+  c.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  c.restore();
+}
+
+function wrapLines(c, text, maxWidth, maxLines = 99) {
+  const out = [];
+  String(text || '').split('\n').forEach(par => {
+    if (!par) { out.push(''); return; }
+    let line = '';
+    par.split(' ').forEach(word => {
+      const test = line ? line + ' ' + word : word;
+      if (c.measureText(test).width <= maxWidth) { line = test; return; }
+      if (line) { out.push(line); line = ''; }
+      if (c.measureText(word).width > maxWidth) {
+        let buf = '';
+        for (const ch of word) {
+          if (c.measureText(buf + ch).width <= maxWidth) buf += ch;
+          else { out.push(buf); buf = ch; }
+        }
+        line = buf;
+      } else line = word;
+    });
+    if (line) out.push(line);
+  });
+  if (out.length > maxLines) {
+    const t = out.slice(0, maxLines);
+    t[maxLines - 1] = t[maxLines - 1].replace(/\s+$/, '') + '…';
+    return t;
+  }
+  return out;
+}
+
+/* 크기에 맞춰 줄 수/높이 자동 축소 */
+function fitText(c, text, { weight = 800, size = 80, min = 44, maxW = 800, maxH = 300, lh = 1.18 }) {
+  for (let s = size; s >= min; s -= 2) {
+    c.font = font(weight, s);
+    const lines = wrapLines(c, text, maxW, 6);
+    const h = lines.length * s * lh;
+    if (h <= maxH && lines.every(l => c.measureText(l).width <= maxW + 1)) {
+      return { size: s, lines, height: h };
+    }
+  }
+  c.font = font(weight, min);
+  const lines = wrapLines(c, text, maxW, Math.max(1, Math.floor(maxH / (min * lh))));
+  return { size: min, lines, height: lines.length * min * lh };
+}
+
+function drawLines(c, lines, x, y, size, lh, align = 'left') {
+  c.textAlign = align;
+  c.textBaseline = 'alphabetic';
+  lines.forEach((l, i) => c.fillText(l, x, y + size * 0.82 + i * size * lh));
+  return y + lines.length * size * lh;
+}
+
+function clipText(c, text, maxW) {
+  if (c.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && c.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t + '…';
+}
+
+function setTracking(c, px) {
+  try { c.letterSpacing = px + 'px'; } catch (e) {}
+}
+function resetTracking(c) {
+  try { c.letterSpacing = '0px'; } catch (e) {}
+}
+
+/* =========================================================================
+   3) 카피 생성 엔진 (규칙 기반)  ← AI 연동 지점
+   ========================================================================= */
+function detectCategory(text) {
+  const t = String(text || '');
+  let best = CATEGORIES[CATEGORIES.length - 1], bestScore = 0;
+  CATEGORIES.forEach(cat => {
+    let score = 0;
+    cat.kw.forEach(k => { if (t.includes(k)) score += 1; });
+    if (score > bestScore) { bestScore = score; best = cat; }
+  });
+  return best;
+}
+
+function shortFeature(f, max = 18) {
+  let s = String(f || '').replace(/\s+/g, ' ').trim();
+  const cut = s.split(/[(),·|]/)[0].trim();
+  if (cut.length >= 4) s = cut;
+  if (s.length <= max) return s;
+  const head = s.slice(0, max + 1);
+  const sp = head.lastIndexOf(' ');
+  if (sp >= 6) return head.slice(0, sp);
+  return s.slice(0, max);
+}
+
+function shortName(name) {
+  let n = String(name || '').split('|')[0].trim();
+  return n.length > 44 ? n.slice(0, 43) + '…' : n;
+}
+
+function unitOf(name) {
+  const m = String(name || '').match(/(\d+(?:\.\d+)?)\s*(입|개입|개|세트|팩|정|매|장|병|캔|kg|g|ml|L|호|매입)/i);
+  return m ? m[1] + m[2] : '';
+}
+
+function priceText(price) {
+  const n = Number(String(price || '').replace(/[^\d]/g, ''));
+  if (!n) return '';
+  return n.toLocaleString('ko-KR') + '원';
+}
+
+/* --- 실제 AI API를 붙일 때는 이 함수만 교체 --- */
+async function buildCopy(input) {
+  // [AI 연동 지점]
+  // const res = await fetch('/api/generate', {method:'POST', body: JSON.stringify(input)});
+  // return await res.json();
+  return ruleBasedCopy(input);
+}
+
+function ruleBasedCopy(input) {
+  const name = String(input.name || '').trim();
+  const feats = (input.features || []).map(f => String(f || '').trim()).filter(Boolean);
+  const cat = detectCategory(name + ' ' + feats.join(' '));
+  const target = TARGETS[input.target] || TARGETS.gift;
+  const mood = MOODS[input.mood] || MOODS.warm;
+  const short = shortName(name);
+  const unit = unitOf(name);
+  const price = priceText(input.price);
+  const f = [feats[0] || '', feats[1] || '', feats[2] || ''];
+  const fShort = f.map(x => shortFeature(x, 14));
+
+  /* 대표 헤드라인 (썸네일 A · 상세페이지 히어로) */
+  let hookLines;
+  if (input.mood === 'sale') {
+    hookLines = price
+      ? [price, unit ? unit + ' 구성' : '구성']
+      : ['가장 많이 찾는', cat.noun + ' 구성'];
+  } else {
+    const set = cat.hook || { warm: ['고민 없이 고른', '한 가지'], clean: ['필요한 것만', '제대로'] };
+    hookLines = set[input.mood === 'clean' ? 'clean' : 'warm'];
+  }
+  /* 썸네일 B · 감성 한 줄 */
+  const moodLine = target.line;
+
+  /* 썸네일 A 상단 뱃지 */
+  const badge = fShort[0] || target.label;
+  /* 하단 포인트 */
+  const points = f.filter(Boolean).slice(0, 3);
+
+  /* 특징 → 카드 */
+  const descPool = cat.desc;
+  const features = f.map((t, i) => t && {
+    num: String(i + 1).padStart(2, '0'),
+    title: t,
+    desc: descPool[(i + (input.target === 'gift' ? 1 : 0)) % descPool.length],
+  }).filter(Boolean);
+
+  /* 공감 문구 */
+  const empathy = target.emp.slice(0, 3);
+
+  /* 상품명 3안 */
+  const base = short.replace(new RegExp((unit || '__none__').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$'), '').trim();
+  const parts1 = [];
+  if (base && !base.includes(target.kw)) parts1.push(target.kw);
+  parts1.push(base || short, f[0], unit);
+  const t1 = parts1.filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  const t2 = [base || short, f[0], f[1], unit].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  const t3 = [[input.mood === 'warm' ? '선물하기 좋은' : input.mood === 'sale' ? '가성비' : '데일리'],
+              base || short, unit].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  const titles = [t1, t2, t3].map(t => {
+    if (t.length <= 50) return t;
+    const head = t.slice(0, 49);
+    const sp = head.lastIndexOf(' ');
+    if (sp > 24) return head.slice(0, sp);
+    return head + '…';
+  });
+
+  /* 한 줄 후킹 */
+  const hook = input.mood === 'clean'
+    ? `${short}, ${fShort[0] || cat.noun} 하나로 결정.`
+    : input.mood === 'sale'
+      ? (price
+          ? `${price}, 이 구성이면 충분합니다.`
+          : `${fShort[0] || cat.noun} 구성, 가장 많이 찾는 이유가 있습니다.`)
+      : `${short}, ${target.line} 한 가지.`;
+
+  /* 홍보 문구 */
+  const promoLines = [];
+  promoLines.push(`${cat.emoji} ${short}${unit && !short.includes(unit) ? ' ' + unit : ''}`);
+  promoLines.push('');
+  f.forEach(x => { if (x) promoLines.push('· ' + x); });
+  promoLines.push('');
+  promoLines.push(hook);
+  if (price) promoLines.push(`${price}${unit ? ' · ' + unit : ''}`);
+  promoLines.push('');
+  promoLines.push('궁금한 점은 DM 주시면 바로 안내드릴게요.');
+  const promo = promoLines.join('\n');
+
+  /* 상세페이지 체크리스트 */
+  const checks = [
+    '구성 · ' + short,
+    ...cat.check,
+    '배송 · 주문 순서대로 순차 출고',
+    '문의 · 스토어 1:1 채팅으로 안내',
+  ];
+
+  return {
+    name, short, unit, price, target, cat, mood,
+    kicker: `${target.label} · ${cat.noun}`,
+    hookLines,
+    moodLine,
+    badge,
+    points,
+    features,
+    empathy,
+    titles,
+    hook,
+    promo,
+    checks,
+    meta: { catId: cat.id, moodId: input.mood, targetId: input.target },
+  };
+}
+
+/* =========================================================================
+   4) 렌더러 — 썸네일 3종
+   ========================================================================= */
+function thumbA(cv, doc) {
+  const W = 1000, H = 1000, c = cv.getContext('2d');
+  const P = doc.mood;
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = P.paper; c.fillRect(0, 0, W, H);
+
+  // 상단 컬러 라인
+  c.fillStyle = P.accent; c.fillRect(0, 0, W, 10);
+
+  // 뱃지
+  const badge = clipText(c, doc.badge, 1200);
+  let bf = 26;
+  c.font = font(800, bf);
+  while (c.measureText(badge).width > 470 && bf > 18) { bf -= 1; c.font = font(800, bf); }
+  const bw = c.measureText(badge).width + 56;
+  c.fillStyle = P.ink;
+  rrect(c, 64, 58, bw, 58, 29); c.fill();
+  c.fillStyle = P.paper; c.textAlign = 'left'; c.textBaseline = 'middle';
+  c.fillText(badge, 92, 88);
+
+  // 키커 (우상단)
+  c.font = font(600, 24); c.fillStyle = P.inkSoft; c.textAlign = 'right'; c.textBaseline = 'middle';
+  c.fillText(clipText(c, doc.kicker, 300), W - 64, 88);
+
+  // 이미지
+  const ix = 64, iw = W - 128, iy = 152, ih = 420;
+  drawImageCover(c, doc.img, ix, iy, iw, ih, 26);
+
+  /* 아래에서 위로 고정 배치: 상품명 → 구분선 → 포인트 */
+  const divY = 916, ptsY = 964, nameLastY = 898;
+
+  // 상품명: 한 줄에 맞으면 축소, 아니면 두 줄
+  let ns = 38, nLines;
+  c.font = font(700, ns);
+  while (ns > 24 && c.measureText(doc.short).width > iw) { ns -= 2; c.font = font(700, ns); }
+  nLines = c.measureText(doc.short).width > iw ? wrapLines(c, doc.short, iw, 2) : [doc.short];
+  const nFirstY = nameLastY - (nLines.length - 1) * 42;
+  const hookBottom = nFirstY - ns - 26;
+
+  const hk = fitText(c, doc.hookLines.join('\n'), {
+    weight: 900, size: 86, min: 44, maxW: iw, maxH: hookBottom - 600, lh: 1.14
+  });
+  c.font = font(900, hk.size); c.fillStyle = P.ink; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  drawLines(c, hk.lines, 64, hookBottom - hk.height, hk.size, 1.14);
+
+  // 상품명
+  c.font = font(700, ns); c.fillStyle = P.ink;
+  nLines.forEach((l, i) => c.fillText(l, 64, nFirstY + i * 42));
+
+  // 구분선
+  c.fillStyle = P.ink; c.globalAlpha = .16;
+  c.fillRect(64, divY, iw, 2); c.globalAlpha = 1;
+
+  // 하단 포인트
+  c.font = font(600, 24); c.fillStyle = P.inkSoft;
+  const pts = doc.points.filter(Boolean);
+  let line = '';
+  pts.forEach(p => { line += (line ? '  ·  ' : '') + p; });
+  if (line) c.fillText(clipText(c, line, iw), 64, ptsY);
+}
+
+function thumbB(cv, doc) {
+  const W = 1000, H = 1000, c = cv.getContext('2d');
+  const P = doc.mood;
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = P.soft; c.fillRect(0, 0, W, H);
+
+  // 프레임
+  c.strokeStyle = P.accent; c.globalAlpha = .5; c.lineWidth = 2;
+  c.strokeRect(40, 40, W - 80, H - 80);
+  c.globalAlpha = 1;
+
+  // 상단 키커
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.font = font(600, 23); c.fillStyle = P.inkSoft;
+  setTracking(c, 6);
+  c.fillText(clipText(c, doc.kicker, 560), W / 2, 126);
+  resetTracking(c);
+
+  // 원형 이미지
+  const cx = W / 2, cy = 424, r = 218;
+  c.save();
+  c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.clip();
+  drawImageCover(c, doc.img, cx - r, cy - r, r * 2, r * 2, 0);
+  c.restore();
+  c.strokeStyle = P.accent; c.globalAlpha = .3; c.lineWidth = 2;
+  c.beginPath(); c.arc(cx, cy, r + 12, 0, Math.PI * 2); c.stroke();
+  c.globalAlpha = 1;
+
+  // 서브카피 (감성 한 줄)
+  const sub = fitText(c, doc.moodLine, {
+    weight: 500, size: 56, min: 36, maxW: 660, maxH: 160, lh: 1.32
+  });
+  c.font = font(500, sub.size); c.fillStyle = P.ink;
+  drawLines(c, sub.lines, cx, 716, sub.size, 1.32, 'center');
+
+  // 구분선
+  c.fillStyle = P.accent; c.fillRect(cx - 24, 878, 48, 3);
+
+  // 하단 상품명
+  c.font = font(700, 24); c.fillStyle = P.inkSoft; c.textAlign = 'center';
+  c.fillText(clipText(c, doc.short, 640), cx, 926);
+}
+
+function thumbC(cv, doc) {
+  const W = 1000, H = 1000, c = cv.getContext('2d');
+  const P = doc.mood;
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = P.paper; c.fillRect(0, 0, W, H);
+
+  // 상단 배너
+  c.fillStyle = P.ink; c.fillRect(0, 0, W, 190);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.font = font(800, 30); c.fillStyle = P.paper;
+  const nmLines = wrapLines(c, doc.short, 500, 2);
+  nmLines.forEach((l, i) => c.fillText(clipText(c, l, 500), 56, 74 + i * 36));
+  c.font = font(600, 23); c.fillStyle = P.accentSoft;
+  c.fillText([doc.target.label, doc.unit].filter(Boolean).join(' · '), 56, 74 + nmLines.length * 36 + 10);
+
+  if (doc.price) {
+    c.textAlign = 'right'; c.fillStyle = P.paper; c.font = font(900, 68);
+    c.fillText(doc.price, W - 56, 122);
+  } else {
+    c.textAlign = 'right'; c.fillStyle = P.accentSoft; c.font = font(700, 26);
+    c.fillText(doc.unit ? '구성 ' + doc.unit : '기본 구성', W - 56, 112);
+  }
+
+  // 스펙 리스트 (특징이 3개보다 적으면 구성·추천으로 채움)
+  const rows = doc.features.map(f => ({ num: f.num, title: f.title }));
+  if (rows.length < 3) rows.push({ num: String(rows.length + 1).padStart(2, '0'), title: '구성 · ' + (doc.unit || '기본 구성') });
+  if (rows.length < 3) rows.push({ num: String(rows.length + 1).padStart(2, '0'), title: '추천 · ' + doc.target.label });
+
+  let y = 268;
+  rows.slice(0, 3).forEach((f, i) => {
+    c.textAlign = 'left';
+    c.font = font(800, 25); c.fillStyle = P.accent;
+    c.fillText(f.num, 56, y + 18);
+    c.font = font(700, 29); c.fillStyle = P.ink;
+    const lines = wrapLines(c, f.title, 360, 3);
+    lines.forEach((l, j) => c.fillText(l, 56 + 48, y + 22 + j * 38));
+    if (i < rows.slice(0, 3).length - 1) {
+      c.fillStyle = P.ink; c.globalAlpha = .10;
+      c.fillRect(56, y + 22 + lines.length * 38 + 14, 386, 1.5); c.globalAlpha = 1;
+    }
+    y += 128;
+  });
+
+  // 이미지
+  drawImageCover(c, doc.img, 520, 236, 424, 424, 26);
+
+  // 하단 포인트 패널 — 특장점 반복 대신 한 줄 선언
+  const py = 684;
+  c.fillStyle = P.accent; c.fillRect(0, py, W, H - py);
+  c.textAlign = 'left';
+  c.font = font(800, 21); c.fillStyle = 'rgba(255,255,255,.7)';
+  setTracking(c, 3);
+  c.fillText('POINT', 56, py + 48);
+  resetTracking(c);
+
+  const statement = doc.meta.moodId === 'sale'
+    ? doc.target.line + ' ' + doc.cat.noun + '.'
+    : doc.hookLines.join('\n');
+  const st = fitText(c, statement, {
+    weight: 800, size: 42, min: 26, maxW: 740, maxH: 126, lh: 1.26
+  });
+  c.font = font(800, st.size); c.fillStyle = '#ffffff'; c.textAlign = 'left';
+  drawLines(c, st.lines, 56, py + 78, st.size, 1.26);
+
+  c.font = font(600, 23); c.fillStyle = 'rgba(255,255,255,.78)';
+  c.fillText([doc.target.label, doc.unit].filter(Boolean).join(' · '), 56, py + 78 + 126 + 30);
+
+  c.textAlign = 'right'; c.font = font(700, 23);
+  c.fillStyle = 'rgba(255,255,255,.9)';
+  c.fillText('자세히 보기 →', W - 56, H - 28);
+}
+
+/* =========================================================================
+   5) 렌더러 — 세로 상세페이지 (860px)
+   ========================================================================= */
+function pageCanvas(doc) {
+  const W = 860;
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = 6000;
+  const c = tmp.getContext('2d');
+  const P = doc.mood;
+  c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, tmp.height);
+
+  /* ---------- 히어로 ---------- */
+  const heroH = 1000;
+  drawImageCover(c, doc.img, 0, 0, W, heroH, 0);
+
+  let g = c.createLinearGradient(0, heroH * 0.32, 0, heroH);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(1, 'rgba(0,0,0,.82)');
+  c.fillStyle = g; c.fillRect(0, 0, W, heroH);
+
+  // 상단 가독용 스크림
+  const tg = c.createLinearGradient(0, 0, 0, 200);
+  tg.addColorStop(0, 'rgba(0,0,0,.38)'); tg.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = tg; c.fillRect(0, 0, W, 200);
+
+  // 뱃지
+  c.font = font(800, 22);
+  const badge = clipText(c, doc.badge, 320);
+  const bw = c.measureText(badge).width + 46;
+  c.fillStyle = 'rgba(255,255,255,.95)';
+  rrect(c, 52, 52, bw, 48, 24); c.fill();
+  c.fillStyle = P.ink; c.textAlign = 'left'; c.textBaseline = 'middle';
+  c.fillText(badge, 52 + 23, 76);
+
+  // 상품명 우상단
+  c.font = font(600, 21); c.fillStyle = 'rgba(255,255,255,.88)'; c.textAlign = 'right';
+  c.fillText(clipText(c, doc.short, 420), W - 52, 76);
+
+  // 카피 — 아래에서 위로 고정
+  c.textBaseline = 'alphabetic';
+  const hl = fitText(c, doc.hookLines.join('\n'), {
+    weight: 900, size: 70, min: 42, maxW: 720, maxH: 230, lh: 1.2
+  });
+  const hlBottom = 916;
+  const hlTop = hlBottom - hl.height;
+  c.textAlign = 'left';
+  c.font = font(700, 23); c.fillStyle = 'rgba(255,255,255,.82)';
+  setTracking(c, 1);
+  c.fillText(doc.kicker, 52, hlTop - 30);
+  resetTracking(c);
+  c.font = font(900, hl.size); c.fillStyle = '#ffffff';
+  drawLines(c, hl.lines, 52, hlTop, hl.size, 1.2);
+
+  let y = heroH;
+
+  /* ---------- SECTION 2 : 공감 ---------- */
+  const s2Top = y;
+  const s2Pad = 96;
+  const empStart = s2Top + s2Pad + 46 + 46 + 40;
+  const s2H = s2Pad + 46 + 46 + 40 + doc.empathy.length * 116 + 34;
+  c.fillStyle = P.soft; c.fillRect(0, s2Top, W, s2H);
+
+  let cy = s2Top + s2Pad;
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.font = font(800, 21); c.fillStyle = P.accent;
+  setTracking(c, 2);
+  c.fillText('CHECK', 52, cy);
+  resetTracking(c);
+  cy += 46;
+  c.font = font(900, 46); c.fillStyle = P.ink;
+  c.fillText('이런 분께 딱 맞아요', 52, cy);
+
+  doc.empathy.forEach((t, i) => {
+    const yy = empStart + i * 116;
+    c.fillStyle = P.accent; c.beginPath(); c.arc(72, yy - 9, 15, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = P.soft; c.lineWidth = 2.5; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(65, yy - 9); c.lineTo(70.5, yy - 3.5); c.lineTo(80, yy - 15); c.stroke();
+    c.font = font(600, 28); c.fillStyle = P.ink;
+    wrapLines(c, t, 660, 2).forEach((l, j) => c.fillText(l, 108, yy + j * 38));
+  });
+  y = s2Top + s2H;
+
+  /* ---------- SECTION 3 : 특장점 ---------- */
+  y += 0;
+  let y3 = y + 96;
+  c.fillStyle = '#ffffff'; c.fillRect(0, y, W, 10);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.font = font(800, 21); c.fillStyle = P.accent;
+  setTracking(c, 2); c.fillText('WHY', 52, y3); resetTracking(c);
+  y3 += 46;
+  c.font = font(900, 46); c.fillStyle = P.ink;
+  c.fillText(doc.features.length > 1 ? `고른 이유 ${doc.features.length}가지` : '고른 이유', 52, y3);
+  y3 += 54;
+
+  doc.features.forEach((f) => {
+    const pad = 34;
+    c.font = font(800, 31);
+    const tLines = wrapLines(c, f.title, W - 2 * 52 - 2 * pad, 3);
+    c.font = font(500, 24);
+    const dLines = wrapLines(c, f.desc, W - 2 * 52 - 2 * pad, 3);
+    const cardH = pad + 34 + tLines.length * 42 + 12 + dLines.length * 35 + pad - 8;
+
+    c.fillStyle = P.soft; c.globalAlpha = .55;
+    rrect(c, 52, y3, W - 104, cardH, 22); c.fill(); c.globalAlpha = 1;
+    c.strokeStyle = 'rgba(0,0,0,.06)'; c.lineWidth = 1.5;
+    rrect(c, 52, y3, W - 104, cardH, 22); c.stroke();
+
+    let ty = y3 + pad;
+    c.font = font(800, 20); c.fillStyle = P.accent;
+    c.fillText(f.num, 52 + pad, ty + 16);
+    ty += 38;
+    c.font = font(800, 31); c.fillStyle = P.ink;
+    tLines.forEach((l, j) => c.fillText(l, 52 + pad, ty + 26 + j * 42));
+    ty += 26 + tLines.length * 42 + 8;
+    c.font = font(500, 24); c.fillStyle = P.inkSoft;
+    dLines.forEach((l, j) => c.fillText(l, 52 + pad, ty + j * 35));
+
+    y3 += cardH + 20;
+  });
+  y = y3 + 60;
+
+  /* ---------- SECTION 4 : 체크리스트 ---------- */
+  const s4Top = y;
+  c.fillStyle = P.ink; c.fillRect(0, s4Top, W, 10);
+  let y4 = s4Top + 92;
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.font = font(800, 21); c.fillStyle = P.accent;
+  setTracking(c, 2); c.fillText('INFO', 52, y4); resetTracking(c);
+  y4 += 44;
+  c.font = font(900, 42); c.fillStyle = P.ink;
+  c.fillText('받기 전에 확인해 주세요', 52, y4);
+  y4 += 58;
+
+  doc.checks.forEach((t) => {
+    c.strokeStyle = P.accent; c.lineWidth = 2.5;
+    rrect(c, 52, y4 - 22, 26, 26, 7); c.stroke();
+    c.beginPath(); c.moveTo(58, y4 - 10); c.lineTo(63, y4 - 4); c.lineTo(72, y4 - 17);
+    c.strokeStyle = P.accent; c.lineWidth = 2.6; c.lineCap = 'round'; c.stroke();
+    let cs = 26;
+    c.font = font(500, cs);
+    while (cs > 18 && c.measureText(t).width > 700) { cs -= 1; c.font = font(500, cs); }
+    c.fillStyle = P.ink;
+    c.fillText(clipText(c, t, 700), 96, y4);
+    y4 += 64;
+  });
+  y = y4 + 44;
+
+  /* ---------- FOOTER ---------- */
+  c.fillStyle = P.soft; c.fillRect(0, y, W, 230);
+  c.textAlign = 'center'; c.fillStyle = P.ink;
+  let fs = 30;
+  c.font = font(800, fs);
+  while (fs > 18 && c.measureText(doc.name).width > 700) { fs -= 1; c.font = font(800, fs); }
+  c.fillText(clipText(c, doc.name, 700), W / 2, y + 96);
+  c.font = font(500, 23); c.fillStyle = P.inkSoft;
+  c.fillText([doc.target.label, doc.cat.noun, doc.unit].filter(Boolean).join(' · '), W / 2, y + 140);
+  c.fillStyle = P.accent; c.fillRect(W / 2 - 26, y + 168, 52, 3);
+  y += 230;
+
+  // 실제 캔버스로 복사
+  const out = document.createElement('canvas');
+  out.width = W; out.height = Math.round(y);
+  out.getContext('2d').drawImage(tmp, 0, 0);
+  doc.pageHeight = out.height;
+  return out;
+}
+
+/* =========================================================================
+   6) UI
+   ========================================================================= */
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), 1900);
+}
+
+function renderTargetChips() {
+  const box = $('#targetChips');
+  box.innerHTML = '';
+  TARGET_IDS.forEach(id => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = TARGETS[id].label;
+    b.setAttribute('aria-pressed', String(state.target === id));
+    b.addEventListener('click', () => {
+      state.target = id;
+      renderTargetChips();
+    });
+    box.appendChild(b);
+  });
+}
+
+function renderMoods() {
+  const box = $('#moodPicker');
+  box.innerHTML = '';
+  Object.keys(MOODS).forEach(id => {
+    const m = MOODS[id];
+    const b = document.createElement('button');
+    b.className = 'mood';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(state.mood === id));
+    b.innerHTML = `<div class="swatch" style="background:linear-gradient(90deg,${m.soft},${m.accent})"></div>
+                   <b>${m.label}</b><small>${m.desc}</small>`;
+    b.addEventListener('click', () => {
+      state.mood = id;
+      renderMoods();
+    });
+    box.appendChild(b);
+  });
+}
+
+function renderSlots() {
+  const box = $('#slots');
+  box.innerHTML = '';
+  state.photos.forEach((img, i) => {
+    const d = document.createElement('div');
+    d.className = 'slot';
+    const im = document.createElement('img');
+    im.src = img.src;
+    d.appendChild(im);
+    const rm = document.createElement('button');
+    rm.className = 'rm'; rm.type = 'button'; rm.textContent = '×';
+    rm.title = '사진 삭제';
+    rm.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.photos.splice(i, 1);
+      renderSlots();
+    });
+    d.appendChild(rm);
+    box.appendChild(d);
+  });
+  if (state.photos.length < 3) {
+    for (let i = state.photos.length; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'slot';
+      d.textContent = '+';
+      d.addEventListener('click', () => $('#fileInput').click());
+      box.appendChild(d);
+    }
+  }
+  $('#dropHint').innerHTML = state.photos.length
+    ? `사진 ${state.photos.length}장 · 클릭해서 추가`
+    : '사진을 끌어다 놓거나 <b>클릭해서 선택</b> · 없으면 예시 이미지로 생성';
+}
+
+async function addFiles(files) {
+  const list = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!list.length) return;
+  const room = 3 - state.photos.length;
+  if (room <= 0) { toast('사진은 최대 3장까지 넣을 수 있어요'); return; }
+  const picked = list.slice(0, room);
+  try {
+    const imgs = await Promise.all(picked.map(loadImageFile));
+    state.photos.push(...imgs);
+    renderSlots();
+    if (list.length > room) toast('사진은 최대 3장까지만 들어갑니다');
+  } catch (e) {
+    toast('사진을 불러오지 못했어요');
+  }
+}
+
+function fillPreset(which) {
+  const p = which === 2 ? {
+    name: '반려견 산책 하네스 M',
+    price: 32900,
+    target: 'pet',
+    mood: 'clean',
+    f: ['가슴 압박 없는 Y자형 설계', '4중 바느질로 당김에 강하게', '탈착 3초, 원터치 버클'],
+  } : {
+    name: '수제 소금버터바 6입',
+    price: 14900,
+    target: 'gift',
+    mood: 'warm',
+    f: ['천연 무염버터 82% 함량', '설탕 대신 알룰로스로 담백하게', '한 개씩 진공 개별 포장'],
+  };
+  $('#fName').value = p.name;
+  $('#fPrice').value = p.price;
+  $('#f1').value = p.f[0];
+  $('#f2').value = p.f[1];
+  $('#f3').value = p.f[2];
+  state.target = p.target;
+  state.mood = p.mood;
+  renderTargetChips();
+  renderMoods();
+  toast(which === 2 ? '예시 ② 반려견 하네스를 채웠어요' : '예시 ① 수제 버터바를 채웠어요');
+}
+
+function readInput() {
+  return {
+    name: $('#fName').value.trim(),
+    price: $('#fPrice').value.trim(),
+    target: state.target,
+    mood: state.mood,
+    features: [$('#f1').value, $('#f2').value, $('#f3').value],
+  };
+}
+
+function slugify(s) {
+  return String(s || '상품').replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '-').slice(0, 24);
+}
+
+async function generate() {
+  const input = readInput();
+  if (!input.name) { toast('상품명을 먼저 적어주세요'); $('#fName').focus(); return; }
+  const feats = input.features.filter(f => f.trim());
+  if (!feats.length) { toast('핵심 특징을 한 줄이라도 적어주세요'); $('#f1').focus(); return; }
+
+  const btn = $('#btnGenerate');
+  btn.disabled = true;
+  btn.textContent = '카피 쓰고 배치하는 중…';
+
+  try {
+    await new Promise(r => setTimeout(r, 320));
+    const doc = await buildCopy(input);
+    doc.mood = MOODS[input.mood];
+    doc.img = state.photos[0] || makeMockPhoto(input.mood, doc.cat.id);
+    doc.img2 = state.photos[1] || doc.img;
+    state.doc = doc;
+
+    thumbA($('#cvA'), doc);
+    thumbB($('#cvB'), doc);
+    thumbC($('#cvC'), doc);
+
+    const page = pageCanvas(doc);
+    const pv = $('#cvPage');
+    pv.width = page.width; pv.height = page.height;
+    pv.getContext('2d').drawImage(page, 0, 0);
+    $('#pageSize').textContent = `· ${page.width} × ${page.height} px`;
+    $('#thumbMeta').textContent = `${doc.short} · ${MOODS[input.mood].label}`;
+
+    renderCopyTab(doc);
+
+    $('#emptyState').style.display = 'none';
+    $$('.panel-tab').forEach(p => p.classList.remove('active'));
+    $('#t1').classList.add('active');
+    $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === 't1')));
+    toast('완성했어요 · PNG 4장');
+    if (window.matchMedia('(max-width: 1040px)').matches) {
+      document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  } catch (e) {
+    console.error(e);
+    toast('생성 중 문제가 생겼어요');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '상세페이지 & 썸네일 생성';
+  }
+}
+
+function renderCopyTab(doc) {
+  const blocks = [
+    { k: '상품명 추천 1안 · 검색형', v: doc.titles[0] },
+    { k: '상품명 추천 2안 · 키워드형', v: doc.titles[1] },
+    { k: '상품명 추천 3안 · 무드형', v: doc.titles[2] },
+    { k: '한 줄 후킹 카피', v: doc.hook },
+    { k: '스레드 / 인스타 홍보 문구', v: doc.promo },
+  ];
+  state.copyBlocks = blocks.map((b, i) => ({ id: 'c' + i, ...b }));
+  const grid = $('#copyGrid');
+  grid.innerHTML = state.copyBlocks.map(b => `
+    <div class="ccard">
+      <header>
+        <h3>${b.k}<span class="len">${b.v.replace(/\n/g, ' ').length}자</span></h3>
+        <button class="btn tiny" data-copy="${b.id}">복사</button>
+      </header>
+      <p>${b.v.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</p>
+    </div>`).join('');
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {}
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  return ok;
+}
+
+function downloadCanvas(cv, filename) {
+  cv.toBlob(blob => {
+    if (!blob) { toast('이미지를 저장하지 못했어요'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('PNG로 저장했어요');
+  }, 'image/png');
+}
+
+/* ---------------- 이벤트 ---------------- */
+function bind() {
+  $('#btnPreset').addEventListener('click', () => fillPreset(1));
+  $('#btnPreset2').addEventListener('click', () => fillPreset(2));
+  $('#btnGenerate').addEventListener('click', generate);
+
+  $('#dropzone').addEventListener('click', (e) => {
+    if (e.target.closest('.rm')) return;
+    $('#fileInput').click();
+  });
+  $('#fileInput').addEventListener('change', (e) => {
+    addFiles(e.target.files);
+    e.target.value = '';
+  });
+  ['dragenter', 'dragover'].forEach(ev => {
+    $('#dropzone').addEventListener(ev, (e) => { e.preventDefault(); $('#dropzone').classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(ev => {
+    $('#dropzone').addEventListener(ev, (e) => { e.preventDefault(); $('#dropzone').classList.remove('over'); });
+  });
+  $('#dropzone').addEventListener('drop', (e) => {
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+  });
+
+  $$('.tab').forEach(t => t.addEventListener('click', () => {
+    $$('.tab').forEach(x => x.setAttribute('aria-selected', 'false'));
+    t.setAttribute('aria-selected', 'true');
+    $$('.panel-tab').forEach(p => p.classList.remove('active'));
+    $('#' + t.dataset.tab).classList.add('active');
+  }));
+
+  document.addEventListener('click', async (e) => {
+    const dl = e.target.closest('[data-dl]');
+    if (dl) {
+      if (!state.doc) return;
+      const s = slugify(state.doc.name);
+      const map = {
+        A: [$('#cvA'), `썸네일-1-핵심포인트_${s}.png`],
+        B: [$('#cvB'), `썸네일-2-감성무드_${s}.png`],
+        C: [$('#cvC'), `썸네일-3-스펙혜택_${s}.png`],
+        P: [$('#cvPage'), `상세페이지_${s}.png`],
+      };
+      const [cv, name] = map[dl.dataset.dl];
+      downloadCanvas(cv, name);
+    }
+    const cp = e.target.closest('[data-copy]');
+    if (cp) {
+      const b = state.copyBlocks.find(x => x.id === cp.dataset.copy);
+      if (b && await copyText(b.v)) {
+        cp.textContent = '복사됨';
+        setTimeout(() => (cp.textContent = '복사'), 1400);
+        toast('복사했어요. 스토어에 붙여넣으세요');
+      } else toast('복사 권한이 막혀 있어요. 직접 선택해 주세요');
+    }
+  });
+
+  $('#btnBig').addEventListener('click', () => {
+    $('#pageScroll').classList.toggle('big');
+    $('#btnBig').textContent = $('#pageScroll').classList.contains('big') ? '작게 보기' : '크게 보기';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate();
+  });
+}
+
+/* ---------------- 시작 ---------------- */
+renderTargetChips();
+renderMoods();
+renderSlots();
+bind();
+</script>
+</body>
+</html>
