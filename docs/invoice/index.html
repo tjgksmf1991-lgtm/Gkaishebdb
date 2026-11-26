@@ -131,7 +131,8 @@ img{max-width:100%}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.14)}
 .seg button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(99,91,255,.28)}
 
-.tb-grid{display:grid;grid-template-columns:1.1fr 1fr 1.1fr 1fr;gap:12px;margin-top:14px;align-items:start}
+.tb-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1fr);gap:12px;margin-top:14px;align-items:start;min-width:0}
+.tb-grid > .field{min-width:0;max-width:100%}
 
 .editor{grid-area:editor;display:grid;gap:12px;min-width:0}
 
@@ -159,15 +160,23 @@ img{max-width:100%}
 .acc.open .acc-body{display:block}
 .acc.open .acc-head{padding-bottom:10px}
 
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;min-width:0}
 .grid2 .span2{grid-column:1 / -1}
 
-.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:100%}
+.field > *{min-width:0;max-width:100%}
 .field > label,.field > .lbl,.label-row > label{font-size:12px;font-weight:600;color:#5b6478;letter-spacing:.005em}
 input[type=text],input[type=email],input[type=number],input[type=date],select,textarea{
   width:100%;min-height:42px;padding:9px 12px;border:1px solid #dfe3ee;border-radius:10px;
   background:#fff;color:var(--ink);font-family:inherit;font-size:15px;line-height:1.4;
   transition:border-color .15s,box-shadow .15s,background .15s;
+}
+/* iOS Safari gives native date inputs an intrinsic width that ignores the parent width.
+   min-width:0 on the control + minmax(0,1fr) tracks keep the box inside its card. */
+input,select,textarea{min-width:0;max-width:100%;box-sizing:border-box}
+input[type=date],input[type=datetime-local],input[type=time]{
+  -webkit-appearance:none;appearance:none;
+  display:block;width:100%;min-width:0;max-width:100%;text-align:left;
 }
 textarea{min-height:76px;resize:vertical}
 input::placeholder,textarea::placeholder{color:#a9b1c1}
@@ -204,13 +213,13 @@ input[type=date]{min-height:42px}
 
 /* line items editor */
 .items-head{
-  display:grid;grid-template-columns:minmax(0,1fr) 64px 100px 104px 32px;gap:10px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,64px) minmax(0,100px) minmax(0,104px) 32px;gap:10px;
   font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#98a2b3;
   padding:0 0 8px;border-bottom:1px solid var(--line-soft);margin-top:4px;
 }
 .items-head span:nth-child(2),.items-head span:nth-child(3),.items-head span:nth-child(4){text-align:right}
 .item-row{
-  display:grid;grid-template-columns:minmax(0,1fr) 64px 100px 104px 32px;gap:10px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,64px) minmax(0,100px) minmax(0,104px) 32px;gap:10px;
   align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft);
 }
 .item-row input{min-height:40px}
@@ -239,7 +248,7 @@ input[type=date]{min-height:42px}
 
 /* design card */
 .design-body{display:grid;gap:16px}
-.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tpl-opt{
   display:flex;flex-direction:column;gap:7px;padding:7px;border:1.5px solid var(--line);
   border-radius:12px;background:#fff;cursor:pointer;text-align:left;position:relative;transition:border-color .15s,box-shadow .15s;
@@ -403,7 +412,7 @@ input[type=date]{min-height:42px}
 .s-grand > span:last-child{font-size:20px;font-weight:800;letter-spacing:-.02em;color:#101828}
 
 .s-notes{
-  display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:46px;padding-top:22px;border-top:1px solid #f2f4f7;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;margin-top:46px;padding-top:22px;border-top:1px solid #f2f4f7;
 }
 .s-notes p{font-size:11px;line-height:1.65;color:#475467;overflow-wrap:anywhere}
 .s-notes .s-label{margin-bottom:6px}
@@ -525,7 +534,7 @@ body.is-modal .toast.show{transform:translate(-50%,0)}
   .layout{grid-template-columns:minmax(0,1fr) 520px}
 }
 @media (max-width:1079px){
-  .layout{grid-template-columns:1fr;grid-template-areas:"toolbar" "editor" "preview";gap:14px}
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"toolbar" "editor" "preview";gap:14px}
   .preview-panel{position:static}
   .preview-stage{max-height:none;overflow:visible;padding:12px}
   .panel-foot{display:none}
@@ -535,7 +544,7 @@ body.is-modal .toast.show{transform:translate(-50%,0)}
   .hero-note{display:none}
 }
 @media (max-width:860px){
-  .tb-grid{grid-template-columns:1fr 1fr}
+  .tb-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 }
 @media (max-width:720px){
   :root{--header-h:56px}
@@ -551,7 +560,7 @@ body.is-modal .toast.show{transform:translate(-50%,0)}
   .seg{width:auto;flex:1;min-width:0}
   .seg button{flex:1;justify-content:center;padding:0 10px}
   .toolbar-top{gap:10px}
-  .tb-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .tb-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
   .acc-head{padding:14px}
   .acc-body{padding:2px 14px 16px}
   .acc.open .acc-head{padding-bottom:8px}
@@ -561,7 +570,7 @@ body.is-modal .toast.show{transform:translate(-50%,0)}
   input[type=text],input[type=email],input[type=number],input[type=date],select,textarea{font-size:16px}
   .items-head{display:none}
   .item-row{
-    grid-template-columns:70px 1fr 1fr 30px;
+    grid-template-columns:minmax(0,64px) minmax(0,1fr) minmax(0,1fr) 30px;
     grid-template-areas:"desc desc desc del" "qty rate amt amt";
     row-gap:9px;padding:12px 0;
   }
@@ -580,6 +589,10 @@ body.is-modal .toast.show{transform:translate(-50%,0)}
   .modal{padding:22px 18px;border-radius:18px}
   .modal h2{font-size:21px}
   .app-foot{padding-top:18px;font-size:11.5px}
+}
+@media (max-width:379px){
+  /* 320~375px: a native iOS date control needs more room than half a card */
+  .tb-grid{grid-template-columns:minmax(0,1fr);gap:9px}
 }
 @media (max-width:430px){
   .header-inner{gap:7px}
