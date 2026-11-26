@@ -181,7 +181,6 @@ h1,h2,h3,p,ul,dl,dd{margin:0}
 .subs{list-style:none;padding:0;display:grid;gap:6px}
 .subs li{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--ink-2)}
 .subs .n{font-size:9.5px;font-weight:800;color:var(--muted);background:#F1ECE3;border-radius:5px;padding:1px 5px;flex:none}
-.subs .n.last{color:var(--accent);background:#FDECE5}
 .subs li b{font-weight:800;color:var(--ink)}
 
 .taglist{display:flex;flex-wrap:wrap;gap:5px}
@@ -392,7 +391,7 @@ details[open] .chev{transform:rotate(180deg)}
       <div class="pay-head">
         <h2>한 달 치 10편 세트<br>+ 업종별 후킹 50선</h2>
       </div>
-      <div class="price-line"><span class="price">5,900원</span><span class="price-sub">1회 결제 · 구독 아님</span></div>
+      <div class="price-line"><span class="price">9,900원</span><span class="price-sub">1회 결제 · 구독 아님</span></div>
       <p class="pay-sub">오늘 뽑은 1편 말고, 다른 각도 9편을 같은 구성으로 한 번에 열어요.</p>
 
       <ul class="pay-list">
@@ -404,7 +403,7 @@ details[open] .chev{transform:rotate(180deg)}
 
       <div class="locked-list" id="lockedList" aria-hidden="true"></div>
 
-      <button type="button" class="cta" id="openPayBtn">전체 10편 + 후킹 50선 열기 (5,900원)</button>
+      <button type="button" class="cta" id="openPayBtn">전체 10편 + 후킹 50선 열기 (9,900원)</button>
       <p class="micro">결제 후 받은 코드를 넣으면 바로 열려요. 만료 없이 계속 쓸 수 있어요.</p>
 
       <div class="code-box">
@@ -454,7 +453,7 @@ details[open] .chev{transform:rotate(180deg)}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
-    <div class="price-line"><span class="price">5,900원</span><span class="price-sub">1회 결제</span></div>
+    <div class="price-line"><span class="price">9,900원</span><span class="price-sub">1회 결제</span></div>
     <ul class="list">
       <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>대본 10편 (다른 각도 9편 포함) — 편마다 후킹 제목 3종</li>
       <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>15·30·50초 길이 전환 (10편 전부 다시 생성)</li>
@@ -486,7 +485,7 @@ details[open] .chev{transform:rotate(180deg)}
       id:'cafe', label:'카페·디저트',
       ph:['예: 소금빵','예: 흑임자 크림 라떼','예: 수제 티라미수'],
       hint:'예: 소금빵, 크루아상, 흑임자 라떼',
-      tags:['#동네카페','#카페추천','#디저트맛집','#소금빵','#카페스타그램','#동네디저트','#커피한잔','#베이커리'],
+      tags:['#동네카페','#카페추천','#디저트맛집','#빵지순례','#카페스타그램','#동네디저트','#커피한잔','#베이커리'],
       w:{place:'매장',stage:'진열장',detail:'결',sound:'바삭',unit:'개',bestTime:'오픈 직후',pair:'아메리카노',compare:'크기와 속',pick:'집어 올리는',serve:'손님에게 건네는',firstOut:'제일 먼저 나가는',newword:'새로 나온',bye:'받아 가는',limitedWhy:'재료 들어온 만큼만 만들고 있어서'}
     },
     {
@@ -521,7 +520,7 @@ details[open] .chev{transform:rotate(180deg)}
       ph:['예: 계절 꽃다발','예: 도자기 오브제','예: 가죽 카드지갑'],
       hint:'예: 계절 꽃다발, 도자기 접시, 카드지갑',
       tags:['#공방','#핸드메이드','#꽃집','#소품샵','#선물추천','#원데이클래스','#수제소품','#플라워'],
-      w:{place:'공방',stage:'작업대',detail:'마감',sound:'사각',unit:'점',bestTime:'재료 손질할 때',pair:'포장 박스',compare:'재료와 완성품',pick:'들어 올리는',serve:'포장해 건네는',firstOut:'제일 먼저 나가는',newword:'새로 나온',bye:'받아 가는',limitedWhy:'이번에 만든 수량까지만 있어서'}
+      w:{place:'공방',stage:'작업대',detail:'마감',sound:'사각',unit:'점',bestTime:'작업 시작 전',pair:'포장 박스',compare:'재료와 완성품',pick:'들어 올리는',serve:'포장해 건네는',firstOut:'제일 먼저 나가는',newword:'새로 나온',bye:'받아 가는',limitedWhy:'이번에 만든 수량까지만 있어서'}
     },
     {
       id:'fitness', label:'헬스·필라테스·PT',
@@ -569,7 +568,7 @@ details[open] .chev{transform:rotate(180deg)}
   ];
 
   /* =========================================================
-     2. 강조 포인트 (마지막 자막 · 캡션 마무리에 쓰임)
+     2. 강조 포인트 (해시태그에 반영 · 화면 자막에는 넣지 않음)
      ========================================================= */
   var EMPHASES = [
     {id:'new',    label:'신메뉴·시즌 한정', tag:'#신메뉴',
@@ -698,7 +697,7 @@ details[open] .chev{transform:rotate(180deg)}
       beats:[
         {t:'훅', scene:'{bestTime}에 {stage} 옆에 폰을 세워두고 준비 장면을 3초. 아무것도 꾸미지 않은 상태로 찍어요.',
           shot:'세로 · 40cm · 폰을 세워 고정. 타이머 촬영으로 두 손을 비워 두세요.',
-          sub:'{bestTime}, 이렇게 시작해요',
+          sub:'문 열기 전, 이렇게 시작해요',
           nar:{ban:'문 열기 30분 전, 우리 {place|은/는} 이렇게 움직여.', jon:'문 열기 30분 전, 저희 {place|은/는} 이렇게 움직여요.'}},
         {t:'오늘 쓸 것', scene:'그날 쓰는 도구와 재료를 한 화면에 펼쳐 놓고 3초. 실제로 쓰는 것만 놓으세요.',
           shot:'위에서 40cm. 도구 사이를 손가락 한 마디씩 띄워 서로 안 겹치게.',
@@ -726,7 +725,7 @@ details[open] .chev{transform:rotate(180deg)}
           nar:{ban:'오늘은 이만큼 준비했어. 다 나가면 끝이야.', jon:'오늘은 이만큼 준비했어요. 다 나가면 끝이에요.'}},
         {t:'마무리', scene:'문 열고 첫 손님 맞는 장면 3초. 첫 컷과 같은 자리에서 찍으세요.',
           shot:'0초와 같은 위치. 문이 열리는 방향으로 살짝만 틀어 주세요.',
-          sub:'{bestTime} 오픈',
+          sub:'오늘도 시작해요',
           nar:{ban:'문 열면 바로 시작이야. 오늘도 잘 부탁해.', jon:'문 열면 바로 시작이에요. 오늘도 잘 부탁드려요.'}}
       ],
       bgm:'낮은 피아노 한 대 또는 잔잔한 로파이. 말소리가 묻히지 않게 볼륨은 낮게.',
@@ -736,8 +735,8 @@ details[open] .chev{transform:rotate(180deg)}
         jon:'문 열기 30분 전에 뭘 하냐고 가끔 물어보세요.\n\n별거 아니고, {menu} {detail}부터 보고 {place} 바닥 한 번 쓸고 불 켜는 게 다예요.\n\n이 30분이 하루를 정하는 것 같아서 안 빼먹고 있어요.\n\n다음에 문 열 때 한 번 들여다봐 주세요. 저장해 두시면 보기 좋아요.'
       },
       pin:{
-        ban:'영업시간은 {bestTime}부터야. 준비하는 시간이라 그 전에 오면 문이 닫혀 있어. 궁금한 건 댓글로 물어봐.',
-        jon:'영업시간은 {bestTime}부터예요. 준비하는 시간이라 그 전에 오시면 문이 닫혀 있어요. 궁금한 건 댓글로 물어봐 주세요.'
+        ban:'문 열기 전 30분은 준비 시간이야. 그 전에 오면 아직 조용해. 오늘 영업시간은 댓글로 물어봐 주면 바로 알려줄게.',
+        jon:'문 열기 전 30분은 준비 시간이에요. 그 전에 오시면 아직 조용해요. 오늘 영업시간은 댓글로 물어봐 주시면 바로 알려드릴게요.'
       },
       thread:{
         ban:'가게 문 여는 30분을 찍어봤어.\n\n{menu} {detail} 확인하고, 바닥 쓸고, 불 켜고. 매일 같은 순서야.\n\n이걸 빼먹으면 그날 손이 자꾸 헤매더라.',
@@ -1396,16 +1395,29 @@ details[open] .chev{transform:rotate(180deg)}
     return null;
   }
 
+  /* 입력한 메뉴를 해시태그로: 띄어쓰기·기호를 지우고 쓸 수 있는 형태만 */
+  function menuTag(){
+    var parts = String(state.menu || '').split(/[^\uAC00-\uD7A3a-zA-Z0-9]+/).filter(function(t){
+      return t && !/^[0-9]+$/.test(t);   /* 숫자만 있는 토막은 뺌: '1:1 PT 10회' → 'PT10회' */
+    });
+    var raw = parts.join('');
+    if(raw.length < 2 || raw.length > 20) return '';
+    if(!/[\uAC00-\uD7A3a-zA-Z]/.test(raw)) return '';
+    return '#' + raw;
+  }
+
   function pickTags(angleIndex, angle){
     var ind = getIndustry(state.industry) || INDUSTRIES[5];
     var pool = ind.tags;
+    var out = [];
+    var mt = menuTag();
+    if(mt) out.push(mt);
     var cand = [];
     var em = emphasisData();
     if(angle.tags && angle.tags[0]) cand.push(angle.tags[0]);
     if(em && em.tag) cand.push(em.tag);
     for(var i=0;i<pool.length;i++){ cand.push(pool[(angleIndex*2 + i) % pool.length]); }
     for(var j=0;j<EXTRA_TAGS.length;j++){ cand.push(EXTRA_TAGS[j]); }
-    var out = [];
     for(var k=0;k<cand.length && out.length<7;k++){
       if(cand[k] && out.indexOf(cand[k]) < 0) out.push(cand[k]);
     }
@@ -1437,11 +1449,6 @@ details[open] .chev{transform:rotate(180deg)}
       };
     });
 
-    var em = emphasisData();
-    var closing = em
-      ? fill(toneOf(em.line), ctx)
-      : (state.tone === 'jon' ? '오늘 영상은 이 장면 하나만 보여드릴게요.' : '오늘 영상은 이 장면 하나만 보여줄게.');
-
     var titles = [
       {k:'① 호기심·비교형', v: fill(toneOf(a.titles.cur), ctx)},
       {k:'② 공감·상황형',   v: fill(toneOf(a.titles.emp), ctx)},
@@ -1457,7 +1464,7 @@ details[open] .chev{transform:rotate(180deg)}
       lenLabel: L.label + ' · ' + L.cuts + '컷',
       titles: titles,
       cuts: cuts,
-      subs: cuts.map(function(c){ return c.sub; }).concat([closing]),
+      subs: cuts.map(function(c){ return c.sub; }),
       guide: {
         bgm: fill(a.bgm, ctx) + ' · ' + L.bpm,
         cut: L.cutTip,
@@ -1677,8 +1684,7 @@ details[open] .chev{transform:rotate(180deg)}
     }).join('');
 
     var subsHTML = set.subs.map(function(s, i){
-      var last = (i === set.subs.length - 1);
-      return '<li><span class="n' + (last ? ' last' : '') + '">' + (last ? '마지막' : (i+1)) + '</span><b>' + esc(s) + '</b></li>';
+      return '<li><span class="n">' + (i+1) + '</span><b>' + esc(s) + '</b></li>';
     }).join('');
 
     return '' +
