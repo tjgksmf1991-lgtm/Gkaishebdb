@@ -2054,6 +2054,7 @@ details[open] .chev{transform:rotate(180deg)}
     renderMode();
     if(on){
       renderUnlocked();
+      if(state.generated) renderFree();   /* 잠금 안내 문구를 지우고 그 자리에서 다시 그림 */
       toast(state.unlockMode === 'admin' ? '관리자 모드로 열었어요 (무제한)' : '이용권이 열렸어요');
     } else {
       renderLocked();
